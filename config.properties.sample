@@ -1,0 +1,4 @@
+beanstalk.s3Bucket=
+telegram.apiKey=
+telegram.defaultEndpoint=
+telegram.bot.event_table=
