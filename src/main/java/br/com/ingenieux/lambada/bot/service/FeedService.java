@@ -1,9 +1,7 @@
 package br.com.ingenieux.lambada.bot.service;
 
 import br.com.ingenieux.lambada.bot.model.ChatEvent;
-import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3URI;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -18,12 +16,10 @@ import org.apache.abdera.model.Feed;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.defaultString;
@@ -51,7 +47,7 @@ public class FeedService {
     }
 
     public void generateFeedFor(Long chatId) throws Exception {
-        final PaginatedQueryList<ChatEvent> entries = chatEventDao.findByChatId(chatId);
+        Set<ChatEvent> entries = new TreeSet<>(chatEventDao.findByChatId(chatId));
 
         final Factory factory = new Abdera().getFactory();
 

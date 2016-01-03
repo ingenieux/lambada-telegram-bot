@@ -4,6 +4,7 @@ import br.com.ingenieux.lambada.bot.cfg.Configuration;
 import br.com.ingenieux.lambada.bot.di.CoreModule;
 import br.com.ingenieux.lambada.bot.model.ChatEvent;
 import br.com.ingenieux.lambada.bot.service.ChatEventDao;
+import br.com.ingenieux.lambada.bot.service.ChatService;
 import br.com.ingenieux.lambada.bot.service.FeedService;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +52,9 @@ public class LambadaTelegramBot {
     @Inject
     FeedService feedService;
 
+    @Inject
+    ChatService chatService;
+
     @LambadaFunction(name = "loggerbot_register", memorySize = 256, timeout = 60)
     public String registerBot(String url, Context ctx) throws Exception {
         String urlToRegister = defaultIfEmpty(url, cfg.getDefaultEndpoint());
@@ -67,7 +71,7 @@ public class LambadaTelegramBot {
 
     @LambadaFunction(name = "loggerbot_message", memorySize = 512, timeout = 300)
     public void onMessage(InputStream is, Context ctx) throws Exception {
-        String updateAsString = IOUtils.toString(is);
+        String updateAsString = IOUtils.toString(is, "UTF-8");
 
         Update update = objectMapper.readValue(updateAsString, Update.class);
 
@@ -87,6 +91,24 @@ public class LambadaTelegramBot {
             final TelegramResponse<?> resp = rh.sendRequest(sendMessageRequest);
 
             ctx.getLogger().log("Response: " + resp);
+        } else if ("/url".equals(update.getMessage().getText())) {
+            String feedUri = feedService.getFeedUrlFor("" + update.getMessage().getChat().getId());
+
+            final TelegramRequest sendMessageRequest = TelegramRequestFactory.createSendMessageRequest(update.getMessage().getChat().getId(), "Seu feed está em " + feedUri, false, null, null);
+
+            final TelegramResponse<?> resp = rh.sendRequest(sendMessageRequest);
+
+            ctx.getLogger().log("Response: " + resp);
+        } else if ("/forget".equals(update.getMessage().getText())) {
+            chatService.truncateAllByChatId(update.getMessage().getChat().getId());
+
+            final TelegramRequest sendMessageRequest = TelegramRequestFactory.createSendMessageRequest(update.getMessage().getChat().getId(), "Ok, apagamos os dados do seu feed", false, null, null);
+
+            final TelegramResponse<?> resp = rh.sendRequest(sendMessageRequest);
+
+            ctx.getLogger().log("Response: " + resp);
+
+            feedService.generateFeedFor(update.getMessage().getChat().getId());
         } else if (! update.getMessage().getText().startsWith("/")) {
             feedService.generateFeedFor(update.getMessage().getChat().getId());
         }

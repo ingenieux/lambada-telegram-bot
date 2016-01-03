@@ -10,6 +10,7 @@ import com.google.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Qualifier;
 import java.util.Collection;
+import java.util.List;
 
 public class ChatEventDao {
     @Inject
@@ -30,5 +31,15 @@ public class ChatEventDao {
 
     public void save(ChatEvent chatEvent) {
         ddbMapper.save(chatEvent);
+    }
+
+    public void deleteAll(Iterable<ChatEvent> eventsToDelete) {
+        for (ChatEvent c : eventsToDelete) {
+            delete(c);
+        }
+    }
+
+    public void delete(ChatEvent c) {
+        ddbMapper.delete(c);
     }
 }

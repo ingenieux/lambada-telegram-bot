@@ -9,7 +9,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.io.Serializable;
 
 @DynamoDBTable(tableName = "chat-events")
-public class ChatEvent implements Serializable {
+public class ChatEvent implements Serializable, Comparable<ChatEvent> {
     Long chatId;
 
     @DynamoDBHashKey(attributeName = "chat_id")
@@ -49,5 +49,10 @@ public class ChatEvent implements Serializable {
                 append("updateId", updateId).
                 append("content", content).
                 toString();
+    }
+
+    @Override
+    public int compareTo(ChatEvent o) {
+        return o.updateId.compareTo(this.updateId);
     }
 }
