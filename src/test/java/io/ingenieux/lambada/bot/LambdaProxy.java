@@ -13,6 +13,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
 public class LambdaProxy {
@@ -53,11 +54,7 @@ public class LambdaProxy {
                 try {
                     final String payloadAsString = totalBuffer.toString();
 
-                    ObjectNode payload = (ObjectNode) objectMapper.readTree(payloadAsString);
-
-                    Update update = objectMapper.convertValue(payload, Update.class);
-
-                    /* Object objRresult = */ bot.onMessage(update, context);
+                    /* Object objRresult = */ bot.onMessage(new ByteArrayInputStream(payloadAsString.getBytes()), context);
 
                     /*
                     String result = null;

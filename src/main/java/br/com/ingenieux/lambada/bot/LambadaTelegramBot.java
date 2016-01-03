@@ -18,8 +18,10 @@ import io.github.nixtabyte.telegram.jtelebot.request.factory.TelegramRequestFact
 import io.github.nixtabyte.telegram.jtelebot.response.json.TelegramResponse;
 import io.github.nixtabyte.telegram.jtelebot.response.json.Update;
 import io.ingenieux.lambada.runtime.LambadaFunction;
+import org.apache.commons.io.IOUtils;
 
 import javax.inject.Inject;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import static java.lang.String.format;
@@ -63,8 +65,10 @@ public class LambadaTelegramBot {
     }
 
     @LambadaFunction(name = "loggerbot_message", memorySize = 512, timeout = 300)
-    public JsonNode onMessage(Update update, Context ctx) throws Exception {
-        JsonNode result = NullNode.getInstance();
+    public void onMessage(InputStream is, Context ctx) throws Exception {
+        String updateAsString = IOUtils.toString(is);
+
+        Update update = objectMapper.readValue(updateAsString, Update.class);
 
         ChatEvent chatEvent = new ChatEvent();
 
@@ -74,19 +78,13 @@ public class LambadaTelegramBot {
 
         chatEventDao.save(chatEvent);
 
-        ctx.getLogger().log("onMessage: update=" + update);
-
         if ("/start".equals(update.getMessage().getText())) {
-            final TelegramRequest sendMessageRequest = TelegramRequestFactory.createSendMessageRequest(update.getMessage().getChat().getId(), "Ola, amo! O que disseres será guardado :D", false, update.getMessage().getId(), null);
+            final TelegramRequest sendMessageRequest = TelegramRequestFactory.createSendMessageRequest(update.getMessage().getChat().getId(), "Ola, seus porra! O que disseres será guardado :D", false, null, null);
 
             final TelegramResponse<?> resp = rh.sendRequest(sendMessageRequest);
 
             ctx.getLogger().log("Response: " + resp);
         }
-
-        return result;
-        //ctx.getLogger().log("onMessage: payload=" + payload);
-        //ctx.getLogger().log("onMessage: objectNode=" + objectNode);
     }
 
 }
