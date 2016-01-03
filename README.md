@@ -2,6 +2,14 @@
 
 ## Setup
 
+Install the telegram libs locally:
+
+```
+$ git clone https://github.com/aldrinleal/JTeleBot-Core jtelebot-core
+$ cd jtelebot-core
+$ mvn install
+```
+
 Create config.properties:
 
 ```

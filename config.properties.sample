@@ -1,4 +1,7 @@
-beanstalk.s3Bucket=
-telegram.apiKey=
-telegram.defaultEndpoint=
-telegram.bot.event_table=
+beanstalk.s3Bucket=ingenieux-images
+telegram.apiKey=<yourkey>
+telegram.defaultEndpoint=https://y7mewjnqfb.execute-api.us-east-1.amazonaws.com/dev/bot
+telegram.bot.event_table=loggerbot
+service.s3.uri=s3://loggerbot.ingenieux.io/feed/atom/%s.xml
+service.base.uri=https://s3.amazonaws.com/loggerbot.ingenieux.io/feed/atom/%s.xml
+
