@@ -23,7 +23,7 @@ service.base.uri=https://s3.amazonaws.com/loggerbot.ingenieux.io/feed/atom/%s.xm
 
 Then:
   * Create a empty AWS API Gateway project, and deploy. Set the URL under defaultEndpoint
-  * Create a dynamodb hash+range table called loggerbot, with chat_id (number) and update_id (number)
+  * Create a dynamodb hash+range table called loggerbot, with chat_id (number) and update_id (number) as hash+range keys
   * Obtain a telegram api key. Set telegram.apiKey under config.properties
   * Create two buckets. One (for binary image) is set on beanstalk.s3Bucket while the other allows publicly access, refers to loggerbot.ingenieux.io. Remember to the set ACL accordingly
 
