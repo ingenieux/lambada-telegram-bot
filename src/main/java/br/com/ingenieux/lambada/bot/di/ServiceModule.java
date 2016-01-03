@@ -2,10 +2,13 @@ package br.com.ingenieux.lambada.bot.di;
 
 import br.com.ingenieux.lambada.bot.cfg.Configuration;
 import br.com.ingenieux.lambada.bot.service.ChatEventDao;
+import br.com.ingenieux.lambada.bot.service.FeedService;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -21,6 +24,9 @@ public class ServiceModule extends AbstractModule {
     protected void configure() {
         bind(Configuration.class).in(Singleton.class);
         bind(ChatEventDao.class).in(Singleton.class);
+        bind(FeedService.class).in(Singleton.class);
+
+        bind(AmazonS3.class).to(AmazonS3Client.class);
     }
 
     @Inject

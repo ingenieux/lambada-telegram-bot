@@ -4,11 +4,9 @@ import br.com.ingenieux.lambada.bot.cfg.Configuration;
 import br.com.ingenieux.lambada.bot.di.CoreModule;
 import br.com.ingenieux.lambada.bot.model.ChatEvent;
 import br.com.ingenieux.lambada.bot.service.ChatEventDao;
+import br.com.ingenieux.lambada.bot.service.FeedService;
 import com.amazonaws.services.lambda.runtime.Context;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -50,6 +48,9 @@ public class LambadaTelegramBot {
     @Inject
     ChatEventDao chatEventDao;
 
+    @Inject
+    FeedService feedService;
+
     @LambadaFunction(name = "loggerbot_register", memorySize = 256, timeout = 60)
     public String registerBot(String url, Context ctx) throws Exception {
         String urlToRegister = defaultIfEmpty(url, cfg.getDefaultEndpoint());
@@ -74,17 +75,20 @@ public class LambadaTelegramBot {
 
         chatEvent.setChatId(update.getMessage().getChat().getId());
         chatEvent.setUpdateId(update.getUpdateId());
-        chatEvent.setContent(objectMapper.writeValueAsString(update));
+        chatEvent.setContent(updateAsString);
 
         chatEventDao.save(chatEvent);
 
         if ("/start".equals(update.getMessage().getText())) {
-            final TelegramRequest sendMessageRequest = TelegramRequestFactory.createSendMessageRequest(update.getMessage().getChat().getId(), "Ola, seus porra! O que disseres será guardado :D", false, null, null);
+            String feedUri = feedService.getFeedUrlFor("" + update.getMessage().getChat().getId());
+
+            final TelegramRequest sendMessageRequest = TelegramRequestFactory.createSendMessageRequest(update.getMessage().getChat().getId(), "Ola, seus porra! O que disseres será guardado em " + feedUri, false, null, null);
 
             final TelegramResponse<?> resp = rh.sendRequest(sendMessageRequest);
 
             ctx.getLogger().log("Response: " + resp);
+        } else if (! update.getMessage().getText().startsWith("/")) {
+            feedService.generateFeedFor(update.getMessage().getChat().getId());
         }
     }
-
 }
